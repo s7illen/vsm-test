@@ -101,7 +101,7 @@ var greyColor = "#898989";
 var barColor = d3.interpolateInferno(0.4);
 var highlightColor = d3.interpolateInferno(0.3);
 
-var svg = d3.select("body").append("svg")
+var svg = d3.select(".chart").append("svg")
 .attr("width", width + margin.left + margin.right)
 .attr("height", height + margin.top + margin.bottom)
 .append("g")
@@ -177,3 +177,186 @@ var ticks = d3.selectAll(".tick text");
 ticks.each(function(_,i){
     if(i <= 22 && i !== 12 && i !== 0) d3.select(this).remove();
 });
+
+
+//create donut chart
+
+var deviceData = [
+    {name: "Galaxy 9", volume: 1.47, percent: 0.0919},
+    {name: "iPhone 11", volume: 1.93, percent: 0.1206},
+    {name: "Galaxy 10", volume: 1.71, percent: 0.1069},
+    {name: "iPad Pro", volume: 2.36, percent: 0.1475},
+    {name: "Note 10", volume: 1.04, percent: 0.065},
+    {name: "LG C9 OLED TV", volume: 0.87, percent: 0.0512},
+    {name: "Samsung Q90", volume: 1.21, percent: 0.075},
+    {name: "QLED TV", volume: 3.59, percent: 0.235},
+    {name: "iPhone X", volume: 0.84, percent: 0.0525},
+    {name: "Windows", volume: 0.98, percent: 0.06125},
+  ];
+  var text = "";
+  
+  var width = 260;
+  var height = 260;
+  var thickness = 40;
+  var duration = 750;
+  
+  var radius = Math.min(width, height) / 2;
+  var color = d3.scaleOrdinal(d3.schemeCategory10);
+  
+  var svg = d3.select(".chart")
+  .append('svg')
+  .attr('class', 'pie')
+  .attr('width', width)
+  .attr('height', height)
+
+  
+  var g = svg.append('g')
+  .attr('transform', 'translate(' + (width/2) + ',' + (height/2) + ')');
+  
+  var arc = d3.arc()
+  .innerRadius(radius - thickness)
+  .outerRadius(radius);
+  
+  var pie = d3.pie()
+  .value(function(d) { return d.volume; })
+  .sort(null);
+
+
+
+  var path = g.selectAll('path')
+  .data(pie(deviceData))
+  .enter()
+  .append("g")
+  .on("mouseover", function(d) {
+        let g = d3.select(this)
+          .style("cursor", "pointer")
+          .style("fill", "black")
+          .append("g")
+          .attr("class", "text-group")
+   
+        g.append("text")
+          .attr("class", "name-text")
+          .text(`${d.data.name}`)
+          .attr('text-anchor', 'middle')
+          .attr('dy', '-1.2em');
+    
+        g.append("text")
+          .attr("class", "value-text")
+          .text(`${d.data.volume}TB`)
+          .attr('text-anchor', 'middle')
+          .attr('dy', '.6em');
+
+        g.append("text")
+        .attr("class", "value-text")
+        .text(`${d.data.percent*100}%`)
+        .attr('text-anchor', 'middle')
+        .attr('dy', '1.2em');
+      })
+    .on("mouseout", function(d) {
+        d3.select(this)
+          .style("cursor", "none")  
+          .style("fill", color(this._current))
+          .select(".text-group").remove();
+      })
+    .append('path')
+    .attr('d', arc)
+    .attr('fill', (d,i) => color(i))
+    .on("mouseover", function(d) {
+        d3.select(this)     
+          .style("cursor", "pointer")
+          .style("fill", "black");
+      })
+    .on("mouseout", function(d) {
+        d3.select(this)
+          .style("cursor", "none")  
+          .style("fill", color(this._current));
+      })
+    .each(function(d, i) { this._current = i; });
+  
+
+
+    var legendG = svg.selectAll(".legend") // note appending it to mySvg and not svg to make positioning easier
+  .data(pie(deviceData))
+  .enter().append("g")
+  .attr("transform", function(d,i){
+    return "translate(" + (width - 110) + "," + (i * 15 + 20) + ")"; // place each legend on the right and bump each one down 15 pixels
+  })
+  .attr("class", "legend");   
+
+legendG.append("rect") // make a matching color rect
+.attr("width", 10)
+.attr("height", 10)
+.style("fill", color);
+
+
+legendG.append("text") // add the text
+.text(function(d){
+  return d.data.name + "  ";
+})
+.style("font-size", 12)
+.attr("y", 10)
+.attr("x", 11);
+
+
+//third chart
+
+var serviceData = [
+    {name: "Xbox", volume: 472},
+    {name: "HBO Now", volume: 521},
+    {name: "SSL v3", volume: 540},
+    {name: "iTunes Purchase", volume: 541},
+    {name: "Hulu", volume: 563},
+    {name: "Amazon Prime", volume: 689},
+    {name: "HTTP media stream", volume: 729},
+    {name: "Netflix", volume: 759},
+    {name: "Youtube", volume: 997},
+];
+
+// set the dimensions and margins of the graph
+var margin = {top: 20, right: 20, bottom: 30, left: 40},
+    width = 400 - margin.left - margin.right,
+    height = 400 - margin.top - margin.bottom;
+
+// set the ranges
+var y = d3.scaleBand()
+          .range([height, 0])
+          .padding(0.1);
+
+var x = d3.scaleLinear()
+          .range([0, width]);
+          
+// append the svg object to the body of the page
+// append a 'group' element to 'svg'
+// moves the 'group' element to the top left margin
+var svg = d3.select(".rightChart").append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+  .append("g")
+    .attr("transform", 
+          "translate(" + margin.left + "," + margin.top + ")");
+
+  // format the data
+
+  // Scale the range of the data in the domains
+  x.domain([0, d3.max(serviceData, function(d){ return d.volume; })])
+  y.domain(serviceData.map(function(d) { return d.name; }));
+  //y.domain([0, d3.max(data, function(d) { return d.sales; })]);
+
+  // append the rectangles for the bar chart
+  svg.selectAll(".bar")
+      .data(serviceData)
+    .enter().append("rect")
+      .attr("class", "bar")
+      //.attr("x", function(d) { return x(d.sales); })
+      .attr("width", function(d) {return x(d.volume); } )
+      .attr("y", function(d) { return y(d.name); })
+      .attr("height", y.bandwidth());
+
+  // add the x Axis
+  svg.append("g")
+      .attr("transform", "translate(0," + height + ")")
+      .call(d3.axisBottom(x));
+
+  // add the y Axis
+  svg.append("g")
+      .call(d3.axisLeft(y));
