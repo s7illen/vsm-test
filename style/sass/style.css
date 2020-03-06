@@ -210,4 +210,24 @@ body {
   text-align: center;
   font-family: 'Open Sans', sans-serif;
 }
+
+text {
+  font-family: Helvetica;
+  color: var(--var-color-grey);
+}
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: var(--var-color-grey);
+  shape-rendering: crispEdges;
+}
+
+.x.axis {
+  font-size: 15px;
+}
+
+.y.axis {
+  font-size: 12px;
+}
 /*# sourceMappingURL=style.css.map */
